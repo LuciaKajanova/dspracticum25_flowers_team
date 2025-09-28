@@ -25,8 +25,9 @@ We will use it to share our progress and homeworks.
 Introduction to seminar
 
 ### 2.week
+
 **Homework**
-- dataset of flowers and train convolutional neural networks (CNNs).
+- Dataset of flowers and train convolutional neural networks (CNNs).
 - FashionMNIST scripts (try to improve accuracy on the test set).  
 
 ## License
