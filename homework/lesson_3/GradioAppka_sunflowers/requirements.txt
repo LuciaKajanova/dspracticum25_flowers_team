@@ -1,0 +1,20 @@
+
+# Základní numerika a vědecké výpočty
+numpy<2           # downgrade kvůli kompatibilitě s PyTorch/FastAI
+scipy==1.11.4
+scikit-learn==1.3.2
+
+# Deep learning framework
+torch<2.1         # HF Spaces často podporuje torch 2.0, kompatibilní s FastAI
+torchvision<0.18  # kompatibilní s torch<2.1
+fastai==2.7.17
+fasttransform     # pokud model používá, nutné pro load_learner
+
+# UI / demo
+gradio==4.44.1
+
+# Další pomocné knihovny
+timm==1.0.9       # jen pokud model využívá tyto vision modely
+pillow            # načítání obrázků
+matplotlib        # vizualizace obrázků
+setuptools
