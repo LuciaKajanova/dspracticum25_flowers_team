@@ -1,0 +1,52 @@
+Tokenizace: ~200k tokenů (subword)
+-velikost slovníku přímo ovlivňuje počet parametrů embedding vrstvy (vocab_size * n_embd)
+-větší slovník = více parametrů a vyšší paměť
+-lepší reprezentace raritních slov, ale zvětšuje velikost modelu
+-pro zlepšení by šlo ještě použít jiný slovník/subword tokenizer, který lépe zachytí češtinu(např. menší slovník s českými tvarolovým efektivnější pro český text, ten však nemusí odrážet právní strukturu textu)
+
+Shrnutí experimentů s hyperparametry a velikostí modelu:
+-zkoušeli jsme různé konfigurace modelu: větší/menší počet parametrů, různé embedding_size, n_layer, n_head
+-výsledky tréninku ukazují že hranice jsou zhruba (při eval_iters=200):
+Train loss = 2,4
+Val loss = 3,1
+-zvyšování velikosti modelu významně nezlepšuje výsledky – pouze zvyšuje paměť a čas tréninku
+-kapacita jednoduchého transformeru je vzhledem k velikosti trénovacích dat prakticky vyčerpaná dle našho pozorování
+-další zvyšování parametrů nemá smysl bez většího datasetu nebo složitější architektury
+-snažili jsme se zachovat rozumnou velikost kolem 100-200 MB, aby model byl konzistentní a zvládnutelný (samozřejmě model s 500M parametry bude alespoň o něco lepší než s 20M)
+-hraní si s parametry ukazuje, že výrazné zlepšení by nastalo jen při delším tréninku a lepším modelu, ale zisky jsou minimální
+-cena za jakékoliv drobné zlepšení je vysoká: větší model, větší paměť, delší trénink, vyšší výpočetní náročnost
+
+Co lze ovlivnit a záleží už na konkrétních preferencích na požadovaný výstup:
+-Delší kontext / širší vztahy mezi větami tj., zvyšovat block_size a n_head. Model lépe chápe souvislosti a strukturu textu.
+-Kvalita jednotlivých slov / detail tokenů tj., menší block_size a n_head. Model se soustředí na přesnější generování jednotlivých tokenů.
+
+Experimenty s learning rate, dropout a early stopping:
+-zkoušeli jsme i vyšší learning rate a kombinace s dropout a větším batch_size
+-výsledkem bylo, že model nebyl nijak dramaticky nestabilní – hodnoty loss byly relativně malé a stabilní
+-dropout (např. 0,2) pomáhal stabilizovat trénink a kompenzoval rychlejší učení
+-early stopping sloužil spíše jako „pojistka“, aby se zastavil trénink při zhoršení loss. Prakticky byl zbytečný, ale nechávali jsme ho jako bezpečnostní opatření.
+
+Eval interval & eval iters:
+-eval_interval = 200, každých 200 iterací se provádí evaluace na validační sadě.
+-eval_iters = 200, počet batchů z validační sady použitých při evaluaci. Je potřeba mít konzistentní a ideálně neměnit při hraní si s ostatními parametry at lze train a val loss porovnávat.
+
+Čeho jsme si dale všimli:
+-při vyšším batch_size evaluace výrazně zpomaluje trénink, protože každá evaluace musí projít více dat a to zvyšuje celkovou dobu tréninku.
+-Prázdný prompt ("\n"): generování textu bylo relativně plynulé a koherentní, model měl volnost „vyplnit“ text podle naučených vzorů.
+-prompt „Zákon č. 246/1992“, generování bylo výrazně horší, text méně plynulý a méně logicky navazující.
+-Prompt „Zákon č. 246/1992 Sb. § 5“, generování ještě horší, model se snažil navázat na konkrétní začátek, ale malá kapacita modelu způsobila nesouvislý a nekonzistentní text.
+
+Závěr:
+Volba parametrů závisí na tom, zda chceme více kontextu nebo lepší kvalitu jednotlivých slov. S touto architekturou a datasetem se nedá dosáhnout výrazně lepších loss hodnot. Zachování rozumné velikosti modelu je klíčové – výrazné zlepšení by stálo příliš mnoho času a výpočetních zdrojů.U  menšího modelu funguje prázdný prompt lépe, konkrétní nebo velmi specifický prompt jej může „zmást“ a zhoršit kvalitu generovaného textu.
+
+batch_size = 16
+block_size = 128
+max_iters = 5000
+eval_interval = 200
+learning_rate = 7e-3
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+eval_iters = 200
+n_embd = 96
+n_head = 6
+n_layer = 6
+dropout = 0.3
