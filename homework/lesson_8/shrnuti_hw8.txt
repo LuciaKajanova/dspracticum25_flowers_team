@@ -1,0 +1,8 @@
+Co fungovalo:
+Technický proces fine-tuningu proběhl za využití unsloth notebooku bez problémů.
+Práce s ChatGPT API byla také bezproblémová.
+Model se naučil dodržovat požadovanou strukturu odpovědi (Alt. název, Shrnutí, Nálada).
+Co nefungovalo / Problémy:
+Nedostatek dat- 100 trénovacích příkladů je příliš málo. Fine-tuned model nepředvedl výrazně lepší výsledky než základní (baseline) model, který je už sám o sobě velmi schopný.
+Model měl tendenci sklouzávat k angličtině, zejména při vyšší temperature. Pro české výstupy bylo nutné češtinu explicitně vynucovat (např. pomocí "hintů" v promptu).
+Model byl při hodnocení nálady (1-5) příliš opatrný a držel se "bezpečného středu" (kolem hodnoty 3), málokdy využíval extrémní hodnoty (1 nebo 5). To je typický důsledek tréninku na malém vzorku dat, kdy model konverguje k průměrným hodnotám, aby minimalizoval chybu.
